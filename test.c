@@ -1,6 +1,6 @@
 #include <string.h>
 #include <stdio.h>
-#include "map.h"
+#include <cmap.h>
 
 int cmp(const void *first, const void *second) 
 {
