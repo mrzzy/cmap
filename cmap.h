@@ -1,8 +1,8 @@
-#ifndef __MAP_H__
-#define __MAP_H__ 1
+#ifndef __CMAP_H__
+#define __CMAP_H__ 1
 /*
- * include/map.h
- * C Map - Binary Search Tree (BST) Edition
+ * cmap.h
+ * C Map Implemented using binary search trees (BST)
 */
 
 /* map_node represents a node in the map's BST */
@@ -45,4 +45,4 @@ void put_map(map *target, void *key, void *value);
 void *get_map(map *target, void *key);
 /* Deletes the given key and asscoaited value from the target map */
 void delete_map(map *target, void *key);
-#endif /* ifndef __MAP_H__ */
+#endif /* ifndef __CMAP_H__ */

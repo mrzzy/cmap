@@ -1,12 +1,12 @@
 /*
- * src/map.c
- * C Map - Binary Search Tree (BST) Edition
+ * map.c
+ * C Map Implemented using binary search trees (BST)
 */
 
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "map.h"
+#include "cmap.h"
 
 /* MAP NODE */
 /* Construct and return a new map node the given key and value */
