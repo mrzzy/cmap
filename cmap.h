@@ -5,6 +5,8 @@
  * C Map Implemented using binary search trees (BST)
 */
 
+#include <stdbool.h>
+
 /* map_node represents a node in the map's BST */
 typedef struct map_node 
 {
@@ -40,9 +42,13 @@ map *construct_map(key_cmp cmp);
 */
 void put_map(map *target, void *key, void *value);
 /* Retrieve the value for the given value from the map target
- * Returns the retreived value
+ * Returns the retreived value for key or NULL if one does not exist
 */
 void *get_map(map *target, void *key);
 /* Deletes the given key and asscoaited value from the target map */
 void delete_map(map *target, void *key);
+/* Checks whether the map target contains the given key 
+ * Returns true if key is present in the map, false otherwise 
+*/
+bool has_map(map *target, void *key);
 #endif /* ifndef __CMAP_H__ */
