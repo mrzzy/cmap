@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     printf("%s\n", get_map(test_map, "nationality"));
     printf("%s\n", get_map(test_map, "about"));
 
-    destory_map(test_map);
+    destroy_map(test_map);
 
     return 0;
 }

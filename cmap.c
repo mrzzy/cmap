@@ -21,17 +21,17 @@ map_node *construct_map_node(void *key, void *value)
     return node;
 }
 
-/* Destroy a map node and its children 
+/* destroy a map node and its children 
  * Does not do anything if node is NULL
 */
-void destory_map_node(map_node *node) {
+void destroy_map_node(map_node *node) {
     if(node == NULL) return;
     
-    // Destroy left and right subtrees
-    destory_map_node(node->left_child);
-    destory_map_node(node->right_child);
+    // destroy left and right subtrees
+    destroy_map_node(node->left_child);
+    destroy_map_node(node->right_child);
     
-    // Free memory for node to destory current node
+    // Free memory for node to destroy current node
     free(node);
 }
 
@@ -46,10 +46,10 @@ map *construct_map(key_cmp cmp)
     return new_map;
 }
 
-/* Destroy and frees the resources of the given map */
-void destory_map(map *target) 
+/* destroy and frees the resources of the given map */
+void destroy_map(map *target) 
 {
-    destory_map_node(target->root);
+    destroy_map_node(target->root);
     free(target);
 }
 

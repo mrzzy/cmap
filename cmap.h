@@ -18,8 +18,8 @@ typedef struct map_node
 
 /* Construct and return a new map node the given key and value */
 map_node *construct_map_node(void *key, void *value);
-/* Destroy a map node and its children */
-void destory_map_node(map_node *node);
+/* destroy a map node and its children */
+void destroy_map_node(map_node *node);
 
 /* MAP */
 /* Key comparsion callback:
@@ -37,9 +37,8 @@ typedef struct map
 
 /* Construct and return a new map with the given key_cmp comparsion function */
 map *construct_map(key_cmp cmp);
-
-/* Destroy and frees the resources of the given map */
-void destory_map(map *target);
+/* destroy and frees the resources of the given map */
+void destroy_map(map *target);
 
 /* CRUD operations */
 /* Associate the given value for the given key into the given map target 
