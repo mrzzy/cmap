@@ -37,6 +37,11 @@ typedef struct map
 
 /* Construct and return a new map with the given key_cmp comparsion function */
 map *construct_map(key_cmp cmp);
+
+/* Destroy and frees the resources of the given map */
+void destory_map(map *target);
+
+/* CRUD operations */
 /* Associate the given value for the given key into the given map target 
  * If key is already in the map, will overwrite old value of key with given value 
 */
