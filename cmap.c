@@ -46,6 +46,15 @@ map *construct_map(key_cmp cmp)
     return new_map;
 }
 
+/* Destroy and frees the resources of the given map */
+void destory_map(map *target) 
+{
+    destory_map_node(target->root);
+    free(target);
+}
+
+/* CRUD operations */
+
 /* Search using given cmp and Locate position in the BST node recursively to 
  * place the given key and value into the BST, creating a new map_node if necessary
  * Returns the updated BST map_node
