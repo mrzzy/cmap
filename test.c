@@ -1,6 +1,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <cmap.h>
+#include <assert.h>
+#include <stdbool.h>
 
 int cmp(const void *first, const void *second) 
 {
@@ -17,6 +19,9 @@ int main(int argc, char *argv[])
     put_map(test_map, "about", 
             "The President of Russia for 3 consequtive terms even though the "
             "Russian consitution stipulates that the President can only run for 2" );
+    
+    assert(has_map(test_map, "job") == true);
+    assert(has_map(test_map, "j") == false);
 
     printf("%s\n", get_map(test_map, "name"));
     printf("%s\n", get_map(test_map, "job"));

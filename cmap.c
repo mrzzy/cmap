@@ -175,3 +175,11 @@ void delete_map(map *target, void *key)
     // Delegate to recursive routinue to remove the node specified by key
     target->root = delete(target->root, key, target->cmp);
 }
+
+/* Checks whether the map target contains the given key 
+ * Returns true if key is present in the map, false otherwise 
+*/
+bool has_map(map *target, void *key) 
+{
+    return get_map(target, key) != NULL;
+}
