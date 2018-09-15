@@ -53,23 +53,47 @@ void destroy_map(map *target)
     free(target);
 }
 
+/* Utilities */
+/* A key and value pair */
+typedef struct pair
+{
+    void *key;
+    void *value;
+}pair;
+
+/* Generic Transformation on a map_node */
+typedef map_node* (transformation)(map_node *, void *arg);
+
+/* Applies the given transform on the map_node specified by the given key in the  
+ * given BST node. If no node is found for the given key, passes NULL to the
+ * given transform callback. When calling the transform callback, passes the given
+ * arg to the callback
+ * Returns the BST with the transform applied to the targeted node
+*/
+map_node *apply(map_node *node, void *key, key_cmp cmp, transformation transform,
+                void *arg) 
+{
+    if(node == NULL) return transform(NULL, arg);
+    else if(cmp(key, node->key) < 0) // key is less than node key, place on left
+        node->left_child = apply(node->left_child, key, cmp, transform, arg); 
+    else if(cmp(key, node->key) > 0) // key is more than than node key, place on right
+        node->right_child = apply(node->right_child, key, cmp, transform, arg); 
+    else 
+        node = transform(node, arg);
+    return node;
+}
+        
 /* CRUD operations */
 
-/* Search using given cmp and Locate position in the BST node recursively to 
- * place the given key and value into the BST, creating a new map_node if necessary
- * Returns the updated BST map_node
-*/
-map_node *put(map_node *node, void *key, void *value, key_cmp cmp) 
+/* Transform to put the given key value pair into the BST node */
+map_node *transform_put(map_node *node, void *arg_pair) 
 {
-    // Base case: no node exists for key, so create new one
-    if(node == NULL) return construct_map_node(key, value);
-    else if(cmp(key, node->key) < 0) // key is less than node key, place on left
-        node->left_child = put(node->left_child, key, value, cmp); 
-    else if(cmp(key, node->key) > 0) // key is more than than node key, place on right
-        node->right_child = put(node->right_child, key, value, cmp); 
-    else // key same as node key, overwrite old value with new value
-        node->value = value;
-    
+    pair *kv_pair = (pair *)arg_pair;
+    // Create node if it does not already exist
+    if(node == NULL)
+        node = construct_map_node(kv_pair->key, kv_pair->value);
+    else
+        node->value = kv_pair->value;
     return node;
 }
 
@@ -78,8 +102,12 @@ map_node *put(map_node *node, void *key, void *value, key_cmp cmp)
 */
 void put_map(map *target, void *key, void *value)
 {
-    // Delegate to recursive routinue to place the key and value
-    target->root = put(target->root, key, value, target->cmp);
+    // Construct key value pair
+    pair kv_pair;
+    kv_pair.key = key;
+    kv_pair.value = value;
+
+    target->root = apply(target->root, key, target->cmp, transform_put, &kv_pair);
 }
 
 /* Search using given cmp and locate node for the given key 
