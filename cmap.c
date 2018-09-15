@@ -1,6 +1,6 @@
 /*
  * map.c
- * C Map Implemented using binary search trees (BST)
+ * C Map Implemented using Red Black Trees (RBT)
 */
 
 #include <string.h>
@@ -16,9 +16,12 @@ map_node *construct_map_node(void *key, void *value)
     map_node *node = malloc(sizeof(map_node));
     node->key = key;
     node->value = value;
+    node->color = NODE_COLOR_RED; // all new RBT nodes are red
+
     node->left_child = NULL;
     node->right_child = NULL;
-    
+    node->parent = NULL;
+
     return node;
 }
 
@@ -74,11 +77,20 @@ typedef map_node* (transformation)(map_node *, void *arg);
 map_node *apply(map_node *node, void *key, key_cmp cmp, transformation transform,
                 void *arg) 
 {
-    if(node == NULL) return transform(NULL, arg);
+    if(node == NULL) 
+        node = transform(NULL, arg);
     else if(cmp(key, node->key) < 0) // key is less than node key, place on left
+    {
         node->left_child = apply(node->left_child, key, cmp, transform, arg); 
+   
+        // Update parent pointer if child is not NULL
+        if(node->left_child != NULL) node->left_child->parent = node;
+    }
     else if(cmp(key, node->key) > 0) // key is more than than node key, place on right
+    {
         node->right_child = apply(node->right_child, key, cmp, transform, arg); 
+        if(node->right_child != NULL) node->right_child->parent = node;
+    }
     else 
         node = transform(node, arg);
     return node;
@@ -110,6 +122,10 @@ void put_map(map *target, void *key, void *value)
     
     // Apply transformation to put the key value pair
     target->root = apply(target->root, key, target->cmp, transform_put, &kv_pair);
+    
+    // RBT root nodes are black
+    if(target->root != NULL)
+        target->root->color = NODE_COLOR_BLACK;
 }
 
 /* Search using given cmp and locate node for the given key 
@@ -163,7 +179,7 @@ map_node *transform_delete(map_node *node, void *key)
     
     // Check if delete node is already null, if so, there is nothing to do..
     if(node == NULL) return NULL;
-
+        
     map_node *delete_node = node;
     // Untangle the node marked for deletion from the binary search tree
     // check if node has both left and right child
@@ -195,7 +211,11 @@ map_node *transform_delete(map_node *node, void *key)
     }
     else // replace with NULL since no children
         node = NULL; 
-    
+
+    // Update parent pointer from delete_node to replacement node
+    if(delete_node->right_child != NULL) delete_node->right_child->parent = node;
+    if(delete_node->left_child != NULL) delete_node->left_child->parent = node;
+
     // Free the node marked for deletion only (not its children)
     free(delete_node);
     

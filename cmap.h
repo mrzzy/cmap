@@ -2,18 +2,28 @@
 #define __CMAP_H__ 1
 /*
  * cmap.h
- * C Map Implemented using binary search trees (BST)
+ * C Map Implemented using Red Black Trees (RBT)
 */
 
 #include <stdbool.h>
+
+/* Red Black tree color */
+typedef enum map_node_color
+{
+    NODE_COLOR_RED,
+    NODE_COLOR_BLACK
+} map_node_color;
 
 /* map_node represents a node in the map's BST */
 typedef struct map_node 
 {
     const void *key;
     void *value;
+    map_node_color color;
+
     struct map_node *left_child; // left subtree
     struct map_node *right_child; // right subtree
+    struct map_node *parent; // parent node
 } map_node;
 
 /* Construct and return a new map node the given key and value */
