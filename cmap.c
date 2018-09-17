@@ -95,9 +95,98 @@ map_node *apply(map_node *node, void *key, key_cmp cmp, transformation transform
         node = transform(node, arg);
     return node;
 }
-        
-/* CRUD operations */
 
+/* Red Black Tree operations */
+/* Retrieves the color of the given map_node node
+ * Returns the retrieved color
+*/
+map_node_color retrieve_color(map_node *node) 
+{
+    if(node == NULL) return NODE_COLOR_BLACK; // null nodes are black
+    else return node->color;
+}
+
+/* Recolor the given black map node target with 2 red children by swaping colors
+ * with the children: Children nodes are colored black while the target node
+ * is recolored red
+*/
+void recolor(map_node *target) 
+{
+    // Check whether operation is permitted 
+    assert(target->left_child != NULL && target->right_child != NULL);
+    assert(retrieve_color(target) == NODE_COLOR_BLACK);
+    assert(retrieve_color(target->left_child) == NODE_COLOR_RED);
+    assert(retrieve_color(target->right_child) == NODE_COLOR_RED);
+    
+    // Recolor nodes
+    target->color = NODE_COLOR_RED;
+    target->left_child->color = NODE_COLOR_BLACK;
+    target->right_child->color = NODE_COLOR_BLACK;
+}
+
+/* Left rotate the given map node target with its right child such that the
+ * target becomes the left child of the originally rignt child.
+ * Note that the right child must be colored red.
+ * Returns the original right child the target
+*/
+map_node *rotate_left(map_node *target)
+{
+    map_node *partner = target->right_child; 
+    // Check whether operation is permitted 
+    assert(partner != NULL);
+    assert(retrieve_color(partner) == NODE_COLOR_RED);
+    
+    // Swap colors
+    map_node_color target_color = target->color;
+    target->color = partner->color;
+    partner->color = target_color;
+    
+    // Rotate left against partner node
+    /*
+     *   o              x  
+     *  / \            / \
+     * .   x   to     o   .
+     *    / \        / \
+     *   +   .      .   +  
+    */
+    target->right_child = partner->left_child;
+    partner->left_child = target;
+
+    return partner;
+}
+
+/* Right rotate the given map node target with its left child such that the
+ * target becomes the right child of the originally left child.
+ * Note that the left child must be colored red.
+ * Returns the original left child of the target
+*/
+map_node *rotate_right(map_node *target)
+{
+    map_node *partner = target->left_child; 
+    // Check whether operation is permitted 
+    assert(partner != NULL);
+    assert(retrieve_color(partner) == NODE_COLOR_RED);
+    
+    // Swap colors
+    map_node_color target_color = target->color;
+    target->color = partner->color;
+    partner->color = target_color;
+    
+    // Rotate right against partner node
+    /*
+     *     o          x
+     *    / \        / \
+     *   x   . to   .   o
+     *  / \            / \
+     * .   +          +   .
+    */
+    target->left_child = partner->right_child;
+    partner->right_child = target;
+
+    return partner;
+}
+
+/* CRUD operations */
 /* Transform to put the given key value pair into the BST node */
 map_node *transform_put(map_node *node, void *arg_pair) 
 {
