@@ -57,45 +57,6 @@ void destroy_map(map *target)
     free(target);
 }
 
-/* Utilities */
-/* A key and value pair */
-typedef struct pair
-{
-    void *key;
-    void *value;
-}pair;
-
-/* Generic Transformation on a map_node */
-typedef map_node* (transformation)(map_node *, void *arg);
-
-/* Applies the given transform on the map_node specified by the given key in the  
- * given BST node. If no node is found for the given key, passes NULL to the
- * given transform callback. When calling the transform callback, passes the given
- * arg to the callback
- * Returns the BST with the transform applied to the targeted node
-*/
-map_node *apply(map_node *node, void *key, key_cmp cmp, transformation transform,
-                void *arg) 
-{
-    if(node == NULL) 
-        node = transform(NULL, arg);
-    else if(cmp(key, node->key) < 0) // key is less than node key, place on left
-    {
-        node->left_child = apply(node->left_child, key, cmp, transform, arg); 
-   
-        // Update parent pointer if child is not NULL
-        if(node->left_child != NULL) node->left_child->parent = node;
-    }
-    else if(cmp(key, node->key) > 0) // key is more than than node key, place on right
-    {
-        node->right_child = apply(node->right_child, key, cmp, transform, arg); 
-        if(node->right_child != NULL) node->right_child->parent = node;
-    }
-    else 
-        node = transform(node, arg);
-    return node;
-}
-
 /* Red Black Tree operations */
 /* Retrieves the color of the given map_node node
  * Returns the retrieved color
@@ -186,6 +147,70 @@ map_node *rotate_right(map_node *target)
     return partner;
 }
 
+/* Apply RBT transformations to attempt to balance the tree specified by the 
+ * given map node.
+ * Returns a balanced version of the tree as a map node.
+*/
+map_node *balance_tree(map_node *tree)
+{
+    // Right child red, left child black: rotate left
+    if(retrieve_color(tree->right_child) == NODE_COLOR_RED &&
+            retrieve_color(tree->left_child) == NODE_COLOR_BLACK) 
+        tree = rotate_left(tree);
+    // Left child red, left-left grandchild red: rotate right
+    else if(retrieve_color(tree->left_child) == NODE_COLOR_RED &&
+            retrieve_color(tree->left_child->left_child))
+        tree = rotate_right(tree);
+    // Both left and right child red: recolor
+    else if(retrieve_color(tree->right_child) == NODE_COLOR_RED &&
+            retrieve_color(tree->left_child) == NODE_COLOR_RED) 
+        recolor(tree);
+
+    return tree;
+}
+
+
+/* Utilities */
+/* A key and value pair */
+typedef struct pair
+{
+    void *key;
+    void *value;
+}pair;
+
+/* Generic Transformation on a map_node */
+typedef map_node* (transformation)(map_node *, void *arg);
+
+/* Applies the given transform on the map_node specified by the given key in the  
+ * given BST node. If no node is found for the given key, passes NULL to the
+ * given transform callback. When calling the transform callback, passes the given
+ * arg to the callback
+ * Returns the BST with the transform applied to the targeted node
+*/
+map_node *apply(map_node *node, void *key, key_cmp cmp, transformation transform,
+                void *arg) 
+{
+    if(node == NULL) 
+        node = transform(NULL, arg);
+    else if(cmp(key, node->key) < 0) // key is less than node key, place on left
+    {
+        node->left_child = apply(node->left_child, key, cmp, transform, arg); 
+   
+        // Update parent pointer if child is not NULL
+        if(node->left_child != NULL) node->left_child->parent = node;
+    }
+    else if(cmp(key, node->key) > 0) // key is more than than node key, place on right
+    {
+        node->right_child = apply(node->right_child, key, cmp, transform, arg); 
+        if(node->right_child != NULL) node->right_child->parent = node;
+    }
+    else 
+        node = transform(node, arg);
+    
+    return node;
+
+}
+
 /* CRUD operations */
 /* Transform to put the given key value pair into the BST node */
 map_node *transform_put(map_node *node, void *arg_pair) 
@@ -196,6 +221,9 @@ map_node *transform_put(map_node *node, void *arg_pair)
         node = construct_map_node(kv_pair->key, kv_pair->value);
     else
         node->value = kv_pair->value;
+
+    node = balance_tree(node); // Balance tree
+
     return node;
 }
 
@@ -211,10 +239,6 @@ void put_map(map *target, void *key, void *value)
     
     // Apply transformation to put the key value pair
     target->root = apply(target->root, key, target->cmp, transform_put, &kv_pair);
-    
-    // RBT root nodes are black
-    if(target->root != NULL)
-        target->root->color = NODE_COLOR_BLACK;
 }
 
 /* Search using given cmp and locate node for the given key 
